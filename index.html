@@ -2297,8 +2297,13 @@ function inboxBillHtml(b){
     ${ok && ch ? "" : `<div class="row">⚠️ IBAN invalide ou non suisse : ne payez pas sans vérifier auprès de l'expéditeur.</div>`}</div>`;
 }
 
-function renderInbox(out, raw, bill){
+// Indices qu'un texte contient vraiment une date ou un délai (FR, DE, IT, EN).
+const DATE_HINT = /\d{1,2}\s*[./-]\s*\d{1,2}|\b(19|20)\d{2}\b|\b(janv|f[ée]vr|mars|avr|mai|juin|juil|ao[uû]t|sept|oct|nov|d[ée]c|jan|feb|m[äa]r|apr|jun|jul|aug|okt|dez|gen|giu|lug|ago|ott|dic)|demain|aujourd|jours?\b|semaine|mois|d[ée]lai|[ée]ch[ée]ance|avant le|frist|tage|woche|monat|bis zum|morgen|heute|entro|giorni|domani|oggi|days?\b|weeks?\b|tomorrow|today|until|by\b/i;
+
+function renderInbox(out, raw, bill, sourceText){
   const r = parseInbox(raw); lastInbox = r;
+  // Si le texte analysé ne contient aucune date ni délai, on ignore le délai proposé par l'IA.
+  if(r.due && sourceText && !DATE_HINT.test(sourceText)) r.due = "";
   const t = INBOX_TYPES[r.type];
   const note = `<div class="small" style="margin-top:10px">Analyse automatique par IA : vérifiez toujours sur le document original.</div>`;
   if(!r.summary && !r.todo.length){
@@ -2316,7 +2321,7 @@ function renderInbox(out, raw, bill){
       <strong style="font-size:16px">${t.icon} ${escapeHtml(t.label)}</strong>${urgLabel ? ` <span class="badge">${urgLabel}</span>` : ""}
       ${suspect && r.type !== "arnaque" ? `<div class="row" style="margin-top:8px"><strong>⚠️ Attention : ce document a des signes d'arnaque (${r.scam}/100).</strong></div>` : ""}
       <div style="margin-top:8px">${escapeHtml(r.summary)}</div>
-      <div style="margin-top:8px">${row("De :", r.from)}${row("Montant :", r.amount)}${row("Délai :", dueTxt)}</div>
+      <div style="margin-top:8px">${row("De :", r.from)}${row("Montant :", r.amount)}${suspect ? "" : row("Délai :", dueTxt)}</div>
       ${days !== null && days < 0 && !suspect ? `<div class="row" style="margin-top:6px">💡 Ce délai est passé. Vérifiez d'abord dans votre e-banking si c'est déjà payé.</div>` : ""}
       ${r.todo.length ? `<div style="margin-top:10px"><strong>À faire</strong><ul style="margin:6px 0 0 20px">${r.todo.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul></div>` : ""}
       <div class="btn-row">
@@ -2352,7 +2357,7 @@ async function analyzeInbox(){
     out.innerHTML = `<div class="result danger">${escapeHtml(aiErrorMessage())}</div>` + inboxBillHtml(bill);
     return;
   }
-  renderInbox(out, raw, bill);
+  renderInbox(out, raw, bill, lastInboxImage ? null : text);
   out.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
