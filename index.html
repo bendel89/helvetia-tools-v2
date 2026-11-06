@@ -2088,6 +2088,8 @@ function inboxPrompt(){
     "N'utilise aucun formatage : pas de #, pas d'astérisques, pas de tableau. 150 mots au maximum.",
     "N'invente rien : si une information n'apparaît pas dans le document, écris « aucun ».",
     "Nous sommes le " + todayStr() + ". Si le délai est relatif (par exemple « dans les 30 jours »), calcule la date à partir de la date du document si elle est visible, sinon à partir d'aujourd'hui.",
+    "Si le délai est déjà passé, conseille d'abord de vérifier si le montant a déjà été payé (e-banking, ordre permanent, relevé de compte), pour ne pas payer deux fois.",
+    "N'invente pas de conséquences (pénalités, poursuites) qui ne sont pas écrites dans le document.",
     "Si le document ressemble à une arnaque, mets TYPE: arnaque. Pour signaler une arnaque, recommande le formulaire de l'OFCS : www.report.ncsc.admin.ch.",
     "Réponds exactement dans ce format :",
     "TYPE: un seul mot parmi facture, impots, assurance, loyer, arnaque, administration, travail, autre",
@@ -2213,9 +2215,10 @@ function renderInbox(out, raw, bill){
       ${suspect && r.type !== "arnaque" ? `<div class="row" style="margin-top:8px"><strong>⚠️ Attention : ce document a des signes d'arnaque (${r.scam}/100).</strong></div>` : ""}
       <div style="margin-top:8px">${escapeHtml(r.summary)}</div>
       <div style="margin-top:8px">${row("De :", r.from)}${row("Montant :", r.amount)}${row("Délai :", dueTxt)}</div>
+      ${days !== null && days < 0 && !suspect ? `<div class="row" style="margin-top:6px">💡 Ce délai est passé. Vérifiez d'abord dans votre e-banking si c'est déjà payé.</div>` : ""}
       ${r.todo.length ? `<div style="margin-top:10px"><strong>À faire</strong><ul style="margin:6px 0 0 20px">${r.todo.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul></div>` : ""}
       <div class="btn-row">
-        ${r.due && !suspect ? `<button type="button" class="btn green" onclick="addInboxDeadline()">➕ Ajouter le délai à mes documents</button>` : ""}
+        ${r.due && !suspect && days >= 0 ? `<button type="button" class="btn green" onclick="addInboxDeadline()">➕ Ajouter le délai à mes documents</button>` : ""}
         <button type="button" class="btn primary" onclick="openPanel('${suspect ? "scam" : t.panel}')">${suspect ? INBOX_TYPES.arnaque.tool : t.tool}</button>
       </div>
       ${note}
