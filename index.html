@@ -2188,6 +2188,7 @@ function inboxPrompt(){
     "Ne recopie pas le nom, l'adresse, le numéro AVS ni les numéros de compte de la personne qui reçoit le document. Pour l'expéditeur, donne seulement son nom, sans adresse.",
     "Nous sommes le " + todayStr() + ". Si le délai est relatif (par exemple « dans les 30 jours »), calcule la date à partir de la date du document si elle est visible, sinon à partir d'aujourd'hui.",
     "Si le délai est déjà passé, conseille d'abord de vérifier si le montant a déjà été payé (e-banking, ordre permanent, relevé de compte), pour ne pas payer deux fois.",
+    "Pour une résiliation, un délai concerne la date d'arrivée de la lettre chez le destinataire, pas la date d'envoi : conseille d'envoyer en recommandé quelques jours avant.",
     "N'invente pas de conséquences (pénalités, poursuites) qui ne sont pas écrites dans le document.",
     "Si le document ressemble à une arnaque, mets TYPE: arnaque. Pour signaler une arnaque, recommande le formulaire de l'OFCS : www.report.ncsc.admin.ch.",
     "Réponds exactement dans ce format :",
@@ -2529,7 +2530,7 @@ function addRateReminder(){
 /* ============================================================
    Assurance maladie
    ============================================================ */
-const HEALTH_STEPS = ["Recevoir la nouvelle prime","Comparer sur priminfo.admin.ch","Comparer franchises","Demander offre nouvelle caisse","Envoyer résiliation avant date limite"];
+const HEALTH_STEPS = ["Recevoir la nouvelle prime","Comparer sur priminfo.admin.ch","Comparer franchises","Demander offre nouvelle caisse","Envoyer la résiliation en recommandé, quelques jours avant : elle doit arriver à la caisse avant la date limite"];
 
 function lastWorkingDayNov(y){
   const d = new Date(y, 10, 30, 12);
@@ -2544,7 +2545,7 @@ function renderHealth(){
   const dl = healthDeadline(), days = healthDays();
   const h = appData.health || {};
   const cls = days <= 14 ? "danger" : days <= 45 ? "warning" : "info";
-  $("healthCountdown").innerHTML = `<div class="result ${cls}" style="margin:0"><strong>⏳ Date limite : ${fmtDate(dl)}</strong><br>Il reste <strong>${days} jour(s)</strong>.</div>`;
+  $("healthCountdown").innerHTML = `<div class="result ${cls}" style="margin:0"><strong>⏳ Date limite : ${fmtDate(dl)}</strong><br>Il reste <strong>${days} jour(s)</strong>.<br><span class="small">C'est la date à laquelle la lettre doit <strong>arriver</strong> à la caisse, pas la date d'envoi.</span></div>`;
   if(h.prime) $("hPrime").value = h.prime;
   if(h.pct !== undefined) $("hPct").value = h.pct;
   const checks = h.checks || [];
@@ -2793,7 +2794,7 @@ function clearLife(){ $("lifeType").selectedIndex = 0; $("lifeDate").value = "";
 /* ============================================================
    Calendrier
    ============================================================ */
-const SWISS_DATES = [["🏥 Résiliation maladie : dernier jour ouvrable de novembre",11,30],["💼 3e pilier A : dernier versement",12,31],["🧾 Déclaration d'impôts (15 mars dans le canton de Vaud, date selon le canton ailleurs)",3,15]];
+const SWISS_DATES = [["🏥 Résiliation maladie : la lettre doit arriver à la caisse au plus tard le dernier jour ouvrable de novembre",11,30],["💼 3e pilier A : dernier versement",12,31],["🧾 Déclaration d'impôts (15 mars dans le canton de Vaud, date selon le canton ailleurs)",3,15]];
 
 function nextDate(m, d){
   const t = todayStr(), y = new Date().getFullYear();
