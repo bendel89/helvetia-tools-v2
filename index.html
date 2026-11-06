@@ -610,7 +610,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
 
   <div class="section">
     <div class="section-title">🔔 Notifications Push</div>
-    <p class="small" style="margin-bottom:10px">Recevez des rappels pour vos échéances, factures et délais importants.</p>
+    <p class="small" style="margin-bottom:10px">Recevez un rappel à 9 h, 7 jours avant chaque échéance, puis la veille et le jour même.</p>
 
     <div id="pushStatus" class="push-status pending">
       <span class="dot"></span>
@@ -1021,8 +1021,16 @@ async function enablePushNotifications(){
   }
 }
 
-function sendTestNotification(){
-  showPushMessage("Un test doit être envoyé depuis la console Firebase.", "info");
+async function sendTestNotification(){
+  if(!currentUser){ showPushMessage("Connectez-vous d'abord (Synchronisation Cloud, plus bas).", "warning"); return; }
+  showPushMessage("📨 Envoi du test…", "info");
+  try{
+    await firebase.functions().httpsCallable("sendTestPush")({});
+    showPushMessage("✅ Test envoyé : la notification doit arriver dans quelques secondes. Vous pouvez verrouiller l'écran pour la voir.", "success");
+  }catch(e){
+    console.warn("Test push :", e);
+    showPushMessage("❌ " + (e && e.message ? e.message : "L'envoi a échoué."), "danger");
+  }
 }
 
 /* ============================================================
