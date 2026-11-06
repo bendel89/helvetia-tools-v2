@@ -476,7 +476,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
     <div class="form-grid">
       <div class="field"><label for="rRent">Loyer net actuel (CHF/mois)</label><input id="rRent" type="number" min="0" step="0.05" inputmode="decimal"></div>
       <div class="field"><label for="rBase">Taux de référence du bail</label>
-        <select id="rBase"><option>1.25</option><option selected>1.5</option><option>1.75</option><option>2</option><option>2.25</option><option>2.5</option><option>2.75</option><option>3</option></select></div>
+        <select id="rBase"><option value="1.25">1,25 %</option><option value="1.5" selected>1,5 %</option><option value="1.75">1,75 %</option><option value="2">2 %</option><option value="2.25">2,25 %</option><option value="2.5">2,5 %</option><option value="2.75">2,75 %</option><option value="3">3 %</option></select></div>
       <div class="field full"><label for="rInfl">Inflation depuis dernière adaptation (%)</label><input id="rInfl" type="number" min="0" step="0.1" inputmode="decimal" value="0"></div>
       <div class="field full"><label class="checkbox"><input id="rIndexed" type="checkbox"><span>Mon bail est indexé ou échelonné</span></label></div>
     </div>
@@ -1359,7 +1359,7 @@ function calcTaxes(){
   }
   if(situation === "married") tax *= 0.90;
 
-  const eff = income > 0 ? (tax / income * 100).toFixed(1) : 0;
+  const eff = income > 0 ? (tax / income * 100).toFixed(1).replace(".", ",") : "0";
   out.innerHTML = `<div class="result info"><strong>🏛️ Estimation d'impôt — ${escapeHtml(canton)}</strong><br><br>
     Revenu imposable : <strong>${formatCHF(base)}</strong><br>
     Impôt annuel estimé : <strong>${formatCHF(tax)}</strong><br>
@@ -2171,7 +2171,7 @@ function calcRent(){
   if(c.indexed){ out.innerHTML = `<div class="result warning">Bail indexé : pas de baisse liée au taux.</div>`; return; }
   if(c.steps <= 0){ out.innerHTML = `<div class="result info">Loyer déjà au taux actuel.</div>`; return; }
   const save = c.rent - c.newRent;
-  out.innerHTML = `<div class="result success"><strong>⚖️ Estimation</strong><br>Baisse estimée : <strong>${(c.net * 100).toFixed(2)} %</strong><br>Loyer net estimé : <strong>${formatCHF(c.newRent)}</strong>/mois<br>Économie : <strong>${formatCHF(save * 12)}</strong>/an</div>`;
+  out.innerHTML = `<div class="result success"><strong>⚖️ Estimation</strong><br>Baisse estimée : <strong>${(c.net * 100).toFixed(2).replace(".", ",")} %</strong><br>Loyer net estimé : <strong>${formatCHF(c.newRent)}</strong>/mois<br>Économie : <strong>${formatCHF(save * 12)}</strong>/an</div>`;
 }
 
 function renderRent(){
