@@ -12,25 +12,25 @@
   "lang": "fr-CH",
   "icons": [
     {
-      "src": "launchericon-192x192.png",
+      "src": "vigieswiss-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "launchericon-192x192.png",
+      "src": "vigieswiss-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "launchericon-512x512.png",
+      "src": "vigieswiss-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "launchericon-512x512.png",
+      "src": "vigieswiss-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

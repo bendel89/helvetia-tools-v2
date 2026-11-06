@@ -17,8 +17,8 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = (payload.notification && payload.notification.title) || "VigieSwiss";
   const notificationOptions = {
     body: (payload.notification && payload.notification.body) || "Nouvelle notification",
-    icon: "/helvetia-tools-v2/launchericon-192x192.png",
-    badge: "/helvetia-tools-v2/launchericon-192x192.png",
+    icon: "/helvetia-tools-v2/vigieswiss-192.png",
+    badge: "/helvetia-tools-v2/vigieswiss-192.png",
     data: payload.data || {}
   };
   self.registration.showNotification(notificationTitle, notificationOptions);
