@@ -135,6 +135,8 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
 .inbox-cta small{display:block;font-size:13px;opacity:.92;line-height:1.35}
 #inboxPreview{display:block;max-width:100%;max-height:320px;margin-top:10px;border-radius:12px;border:1px solid var(--border)}
 #inboxPreview.hidden{display:none}
+.privacy-list{margin:4px 0 0 20px;line-height:1.55}
+.privacy-list li{margin-bottom:6px}
 @media print{body *{visibility:hidden}.letter-preview,.letter-preview *{visibility:visible}.letter-preview{position:absolute;left:0;top:0;width:100%;border:0;box-shadow:none;padding:0;margin:0}.back-to-top{display:none}}
 </style>
 </head>
@@ -186,7 +188,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
       <button type="button" class="btn primary" onclick="analyzeInbox()">🔍 Qu'est-ce que je dois faire ?</button>
       <button type="button" class="btn danger" onclick="clearInbox()">🗑️ Effacer</button>
     </div>
-    <p class="small" style="margin-top:8px">Le document est envoyé à l'IA seulement pour l'analyse. Il n'est pas enregistré dans l'app.</p>
+    <p class="small" style="margin-top:8px">Le document est envoyé à un service d'IA situé hors de Suisse, seulement pour l'analyse. Il n'est pas enregistré dans l'app. <a href="#" onclick="openPanel('privacy');return false">En savoir plus</a></p>
     <div id="inboxResult" aria-live="polite"></div>
   </div>
 </div></section>
@@ -642,6 +644,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
         <button type="button" class="btn green" onclick="syncNow()">🔄 Synchroniser maintenant</button>
         <button type="button" class="btn danger" onclick="cloudLogout()">🚪 Se déconnecter</button>
       </div>
+      <div class="btn-row"><button type="button" class="btn danger" onclick="deleteAccount()">🗑️ Supprimer mon compte et mes données</button></div>
       <p class="small" style="margin-top:10px">La synchronisation est automatique à chaque modification.</p>
     </div>
 
@@ -660,11 +663,68 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
     <div id="settingsResult" aria-live="polite"></div>
   </div>
   <div class="section">
+    <div class="section-title">🔒 Confidentialité</div>
+    <p class="small">Quelles données l'app utilise, où elles vont, et vos droits.</p>
+    <div class="btn-row">
+      <button type="button" class="btn" onclick="openPanel('privacy')">🔒 Lire la politique de confidentialité</button>
+      <button type="button" class="btn" onclick="resetAIConsent()">↩️ Retirer mon accord pour l'IA</button>
+    </div>
+  </div>
+  <div class="section">
     <div class="section-title">📤 Partage de l'app</div>
     <p class="small">Envoyez le lien de l'app à vos proches.</p>
     <div class="btn-row">
       <button type="button" class="btn primary" onclick="shareApp()">📤 Partager VigieSwiss</button>
     </div>
+  </div>
+</div></section>
+
+<section id="panel-privacy" class="panel" data-title="🔒 Confidentialité"><div class="panel-body">
+  <div class="section">
+    <p class="small">Dernière mise à jour : 6 novembre 2026. Cette page explique, en mots simples, quelles données VigieSwiss traite et comment, selon la loi suisse sur la protection des données (nLPD).</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Qui est responsable ?</div>
+    <p><span class="privacy-controller"></span>, en Suisse. Contact : <span class="privacy-email"></span></p>
+  </div>
+  <div class="section">
+    <div class="section-title">Quelles données ?</div>
+    <ul class="privacy-list">
+      <li><strong>Sans compte</strong> : vos saisies (documents, échéances, budget…) restent dans votre navigateur, sur votre appareil.</li>
+      <li><strong>Avec un compte</strong> : votre e-mail et vos données de l'app sont enregistrés dans le cloud pour les retrouver sur vos appareils.</li>
+      <li><strong>Notifications</strong> : un identifiant technique de votre appareil, pour vous envoyer les rappels.</li>
+      <li><strong>Analyse IA</strong> : le texte ou la photo que vous choisissez d'analyser (courrier, facture, SMS…). Ils peuvent contenir des données personnelles.</li>
+      <li><strong>Compteur</strong> : le nombre d'analyses IA par jour (limite de 30), lié à votre compte ou à votre adresse IP.</li>
+    </ul>
+  </div>
+  <div class="section">
+    <div class="section-title">Pourquoi ?</div>
+    <p>Uniquement pour faire fonctionner l'app : enregistrer vos rappels, vous envoyer les notifications et analyser les documents que vous montrez. Pas de publicité, pas de revente de données, pas de profilage.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Avec qui ? Les données quittent la Suisse</div>
+    <ul class="privacy-list">
+      <li><strong>Google (Firebase)</strong> : compte, stockage des données, notifications et serveur. Les données peuvent être traitées hors de Suisse, notamment aux États-Unis.</li>
+      <li><strong>Anthropic (Claude)</strong> : analyse des textes et photos, aux États-Unis. Selon ses conditions commerciales, Anthropic n'utilise pas ces données pour entraîner ses modèles et ne les conserve que pour une durée limitée.</li>
+      <li><strong>GitHub</strong> : hébergement des pages de l'app (pas de vos données).</li>
+    </ul>
+    <p class="small" style="margin-top:8px">Ces transferts reposent sur les garanties contractuelles de ces fournisseurs. Les autres liens de l'app (local.ch, admin.ch, Homegate…) ouvrent des sites externes qui ont leurs propres règles.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Combien de temps ?</div>
+    <ul class="privacy-list">
+      <li>Les photos et textes analysés ne sont <strong>pas enregistrés</strong> par VigieSwiss.</li>
+      <li>Vos données de compte sont gardées tant que votre compte existe, puis supprimées quand vous le supprimez.</li>
+      <li>Le compteur d'analyses ne contient qu'un nombre par jour.</li>
+    </ul>
+  </div>
+  <div class="section">
+    <div class="section-title">Vos droits</div>
+    <p>Vous pouvez à tout moment : <strong>télécharger</strong> vos données (Paramètres → 💾 Télécharger mes données), <strong>supprimer</strong> votre compte et vos données (Paramètres → 🗑️ Supprimer mon compte), ou demander des informations par e-mail. Vous pouvez aussi vous adresser au Préposé fédéral à la protection des données (PFPDT, www.edoeb.admin.ch).</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Conseils</div>
+    <p>N'envoyez pas à l'IA des documents dont vous ne voulez pas partager le contenu. Les résultats de l'IA sont des indications, pas des conseils juridiques ou financiers : vérifiez toujours sur le document original.</p>
   </div>
 </div></section>
 
@@ -1647,6 +1707,7 @@ function globalSearch(){
    GEMINI — Assistant IA
    ============================================================ */
 async function askGemini(prompt){
+  if(!await ensureAIConsent()) return null;
   try{
     const askClaude = firebase.functions().httpsCallable('askClaude');
     const result = await askClaude({ prompt: prompt });
@@ -2045,6 +2106,7 @@ function renderScamAI(out, raw){
 }
 
 async function analyzeImageWithClaude(imageDataUrl){
+  if(!await ensureAIConsent()) return null;
   try{
     const matches = imageDataUrl.match(/^data:(image\/[a-z]+);base64,(.+)$/);
     if(!matches){
@@ -2129,6 +2191,7 @@ function resizeImage(dataUrl, max = 1600, quality = .85){
 }
 
 async function askClaudeWith(prompt, imageDataUrl){
+  if(!await ensureAIConsent()) return null;
   try{
     const data = { prompt };
     if(imageDataUrl){
@@ -2246,6 +2309,7 @@ function addInboxDeadline(){
 async function analyzeInbox(){
   const out = $("inboxResult"), text = $("inboxText").value.trim();
   if(!lastInboxImage && !text){ out.innerHTML = `<div class="result warning">Prenez une photo du document ou collez son texte.</div>`; return; }
+  if(!await ensureAIConsent()){ out.innerHTML = `<div class="result warning">Analyse annulée. Sans votre accord, le document n'est pas envoyé à l'IA.</div>`; return; }
   out.innerHTML = `<div class="result info">🤖 Lecture du document…</div>`;
   const qrPromise = lastInboxOriginal ? readQR(lastInboxOriginal).catch(() => "") : Promise.resolve("");
   const prompt = inboxPrompt() + (lastInboxImage
@@ -2898,6 +2962,69 @@ async function clearAllData(){
 }
 
 /* ============================================================
+   Confidentialité : accord avant l'IA, suppression du compte
+   ============================================================ */
+const PRIVACY_CONTROLLER = "VigieSwiss (projet personnel)";
+const PRIVACY_EMAIL = "businessdendel89@gmail.com";
+const AI_CONSENT_KEY = "vigieAIConsent_v1";
+
+function fillPrivacy(){
+  document.querySelectorAll(".privacy-controller").forEach(el => el.textContent = PRIVACY_CONTROLLER);
+  document.querySelectorAll(".privacy-email").forEach(el => el.textContent = PRIVACY_EMAIL);
+}
+
+function hasAIConsent(){ try{ return localStorage.getItem(AI_CONSENT_KEY) === "1"; }catch(e){ return false; } }
+
+async function ensureAIConsent(){
+  if(hasAIConsent()) return true;
+  const ok = await uiForm("Analyse par l'IA", [
+    {text:"Pour l'analyse, votre texte ou votre photo est envoyé à un service d'IA (Anthropic) situé aux États-Unis, donc hors de Suisse."},
+    {text:"Il n'est pas enregistré dans VigieSwiss. Évitez d'envoyer des documents dont vous ne voulez pas partager le contenu."},
+    {text:"Détails : Paramètres → 🔒 Confidentialité."}
+  ], "J'accepte");
+  if(ok === null) { showToast("Analyse IA annulée"); return false; }
+  try{ localStorage.setItem(AI_CONSENT_KEY, "1"); }catch(e){}
+  return true;
+}
+
+function resetAIConsent(){
+  try{ localStorage.removeItem(AI_CONSENT_KEY); }catch(e){}
+  showToast("Accord retiré : l'app vous le redemandera avant la prochaine analyse IA");
+}
+
+async function deleteAccount(){
+  if(!currentUser || !fbAuth || !fbDb){ showCloudMessage("Connectez-vous d'abord pour supprimer votre compte.", "warning"); return; }
+  const email = currentUser.email || "";
+  const res = await uiForm("Supprimer mon compte", [
+    {text:"Votre compte, vos documents, rappels et réglages seront supprimés définitivement, dans le cloud et sur cet appareil. Pensez à télécharger vos données avant si vous voulez les garder."},
+    {text:"Pour confirmer, entrez votre mot de passe :"},
+    {label:"Mot de passe", type:"password"}
+  ], "Supprimer définitivement");
+  if(!res || !res[2]) return;
+  try{
+    showCloudMessage("Suppression en cours…", "info");
+    const cred = firebase.auth.EmailAuthProvider.credential(email, res[2]);
+    await currentUser.reauthenticateWithCredential(cred);
+    if(firestoreUnsubscribe){ firestoreUnsubscribe(); firestoreUnsubscribe = null; }
+    const user = currentUser;
+    await fbDb.collection("users").doc(user.uid).delete();
+    await user.delete();
+    localStorage.removeItem(STORAGE_KEY);
+    OLD_KEYS.forEach(k => localStorage.removeItem(k));
+    try{ localStorage.removeItem(AI_CONSENT_KEY); }catch(e){}
+    appData = cloneDefault(); renderAll();
+    showCloudMessage("✅ Votre compte et vos données ont été supprimés.", "success");
+    showToast("Compte supprimé");
+  }catch(e){
+    console.warn("Suppression compte :", e);
+    const msg = e && (e.code === "auth/wrong-password" || e.code === "auth/invalid-credential" || e.code === "auth/invalid-login-credentials")
+      ? "Mot de passe incorrect. Rien n'a été supprimé."
+      : "La suppression a échoué : " + (e && e.message ? e.message : "erreur inconnue");
+    showCloudMessage(msg, "danger");
+  }
+}
+
+/* ============================================================
    Modale
    ============================================================ */
 let modalPrevFocus = null;
@@ -2935,7 +3062,7 @@ function uiConfirm(msg, ok = "Confirmer"){ return uiForm("Confirmation", [{text:
    Rendu global
    ============================================================ */
 function renderAll(){
-  refreshFavorites(); renderMoney(); renderHousing();
+  fillPrivacy(); refreshFavorites(); renderMoney(); renderHousing();
   renderList("family"); renderList("documents"); renderList("applications");
   renderNumbers(); renderHealth(); renderRent(); renderToday();
   updateCloudUI();
