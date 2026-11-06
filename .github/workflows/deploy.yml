@@ -1,10 +1,9 @@
 name: Deploy Firebase Function
 
+# Lancement uniquement à la main (onglet Actions, bouton « Run workflow »).
+# La publication se fait pour l'instant depuis l'ordinateur avec « firebase deploy ».
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   deploy:
