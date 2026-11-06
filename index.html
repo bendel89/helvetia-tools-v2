@@ -6,15 +6,15 @@
 <meta name="theme-color" content="#b51218">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="description" content="Helvetia-Tools — assistant suisse pour les démarches du quotidien.">
-<title>Helvetia-Tools — Assistant suisse</title>
+<meta name="description" content="VigieSwiss — assistant suisse pour les démarches du quotidien.">
+<title>VigieSwiss — Assistant suisse</title>
 <script>
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = "8F9D6717-0C8C-46DF-BCB6-FC987A5F6A8F";
 </script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="192x192" href="launchericon-192x192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="launchericon-512x512.png">
-<meta name="apple-mobile-web-app-title" content="Helvetia">
+<meta name="apple-mobile-web-app-title" content="VigieSwiss">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--red:#b51218;--green:#16834b;--blue:#1769aa;--bg:#f4f6f8;--text:#1d1d1f;--muted:#5b6168;--border:#e2e5e9;--card:#fff;--shadow:0 5px 18px rgba(0,0,0,.08)}
@@ -137,7 +137,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
 
 <header class="header">
   <div class="header-top">
-    <div class="logo">🇨🇭 Helvetia-Tools</div>
+    <div class="logo">🇨🇭 VigieSwiss</div>
     <div class="header-actions">
       <button type="button" class="icon-btn" aria-label="Favoris" onclick="openPanel('favorites')">⭐</button>
       <button type="button" class="icon-btn" aria-label="Paramètres" onclick="openPanel('settings')">⚙️</button>
@@ -629,7 +629,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
     <div class="section-title">📤 Partage de l'app</div>
     <p class="small">Envoyez le lien de l'app à vos proches.</p>
     <div class="btn-row">
-      <button type="button" class="btn primary" onclick="shareApp()">📤 Partager Helvetia-Tools</button>
+      <button type="button" class="btn primary" onclick="shareApp()">📤 Partager VigieSwiss</button>
     </div>
   </div>
 </div></section>
@@ -725,7 +725,7 @@ try {
 }
 
 /* ============================================================
-   Helvetia-Tools — base
+   VigieSwiss — base
    ============================================================ */
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "helvetiaTools_v1";
@@ -884,7 +884,7 @@ async function initFCM(){
     // 3. Écouter les messages en premier plan
     messaging.onMessage((payload) => {
       console.log("Message foreground :", payload);
-      const title = (payload.notification && payload.notification.title) || "Helvetia-Tools";
+      const title = (payload.notification && payload.notification.title) || "VigieSwiss";
       const body = (payload.notification && payload.notification.body) || "";
       if(typeof Notification !== "undefined" && Notification.permission === "granted"){
         new Notification(title, {body, icon: "/helvetia-tools-v2/launchericon-192x192.png"});
@@ -1223,18 +1223,18 @@ function shareItem(key, i){
   const item = appData[key] && appData[key][i];
   if(!item) return;
   const t = (item.done ? "✅ " : "📌 ") + item.text + (item.due ? "\n📅 Échéance : " + fmtDate(item.due) : "");
-  shareText("Helvetia-Tools", t);
+  shareText("VigieSwiss", t);
 }
 
 function shareLetter(){
   const text = $("lOut").dataset.raw || "";
   if(!text){ showToast("Générez d'abord la lettre"); return; }
-  shareText("Lettre — Helvetia-Tools", text);
+  shareText("Lettre — VigieSwiss", text);
 }
 
 function shareApp(){
   const url = "https://bendel89.github.io/helvetia-tools-v2/";
-  shareText("Helvetia-Tools", "Découvrez Helvetia-Tools, l'assistant suisse pour les démarches du quotidien :\n" + url);
+  shareText("VigieSwiss", "Découvrez VigieSwiss, l'assistant suisse pour les démarches du quotidien :\n" + url);
 }
 
 /* ============================================================
@@ -1297,7 +1297,7 @@ function downloadLetterPDF(){
       doc.text(line, margin, y);
       y += lineHeight;
     }
-    doc.save("lettre-helvetia-tools.pdf");
+    doc.save("lettre-vigieswiss.pdf");
     showToast("✅ PDF enregistré dans Téléchargements");
   }catch(e){
     console.error("PDF error:", e);
@@ -1314,7 +1314,7 @@ function downloadData(){
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "helvetia-tools-donnees-" + todayStr() + ".json";
+    a.download = "vigieswiss-donnees-" + todayStr() + ".json";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
     showToast("Fichier téléchargé");
@@ -2535,7 +2535,7 @@ async function exportICS(){
   const clean = t => String(t).replace(/[,;\\]/g," ").replace(/\n/g," ");
   const stamp = new Date().toISOString().replace(/[-:]/g,"").slice(0,15) + "Z";
   const ev = calItems.map((i,n) => ["BEGIN:VEVENT","UID:helvetia-" + n + "@helvetia-tools","DTSTAMP:" + stamp,"DTSTART;VALUE=DATE:" + i.due.replace(/-/g,""),"DTEND;VALUE=DATE:" + addDays(i.due,1).replace(/-/g,""),"SUMMARY:" + clean(i.text),"END:VEVENT"].join("\r\n"));
-  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Helvetia-Tools//FR",...ev,"END:VCALENDAR"].join("\r\n");
+  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//VigieSwiss//FR",...ev,"END:VCALENDAR"].join("\r\n");
   const file = new File([ics], "echeances.ics", {type:"text/calendar"});
   try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"Échéances"}); return; } }catch(e){ if(e.name === "AbortError") return; }
   const a = document.createElement("a");

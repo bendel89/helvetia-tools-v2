@@ -14,7 +14,7 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
   console.log("[firebase-messaging-sw.js] Notification reçue :", payload);
-  const notificationTitle = (payload.notification && payload.notification.title) || "Helvetia-Tools";
+  const notificationTitle = (payload.notification && payload.notification.title) || "VigieSwiss";
   const notificationOptions = {
     body: (payload.notification && payload.notification.body) || "Nouvelle notification",
     icon: "/helvetia-tools-v2/launchericon-192x192.png",

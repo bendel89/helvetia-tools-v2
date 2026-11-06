@@ -52,7 +52,7 @@ exports.dailyReminders = functions.pubsub
           await messaging.send({
             token: token,
             notification: {
-              title: "📅 Rappel Helvetia-Tools",
+              title: "📅 Rappel VigieSwiss",
               body: `${item.text} - échéance dans 7 jours (${targetStr})`,
             },
             webpush: {
