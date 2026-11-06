@@ -988,6 +988,7 @@ async function initFCM(){
     fcmReady = true;
     console.log("FCM initialisé");
     updatePushUI();
+    refreshPushTokenQuietly();
   }catch(e){
     console.error("Erreur init FCM :", e);
     pushStatus("off", "Erreur : " + (e.message || "inconnue"));
@@ -1033,6 +1034,22 @@ function updatePushUI(){
   }catch(e){
     console.warn("Erreur updatePushUI:", e);
   }
+}
+
+// Au démarrage : si les notifications sont déjà autorisées, on récupère le jeton
+// sans rien demander, pour afficher le bon état et garder le jeton à jour.
+async function refreshPushTokenQuietly(){
+  try{
+    if(typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    if(!swRegistration){ try{ swRegistration = await navigator.serviceWorker.ready; }catch(e){} }
+    const token = await firebase.messaging().getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: swRegistration || undefined });
+    if(!token) return;
+    fcmToken = token;
+    if(currentUser && fbDb){
+      await fbDb.collection("users").doc(currentUser.uid).set({ fcmToken: token, fcmUpdatedAt: Date.now() }, {merge:true});
+    }
+    updatePushUI();
+  }catch(e){ console.warn("Jeton push (silencieux) :", e); }
 }
 
 async function enablePushNotifications(){
@@ -1706,6 +1723,13 @@ function globalSearch(){
 /* ============================================================
    GEMINI — Assistant IA
    ============================================================ */
+let lastAIError = null;
+function aiErrorMessage(){
+  const code = String((lastAIError && lastAIError.code) || "");
+  if(code.includes("resource-exhausted")) return "Limite de 30 analyses IA par jour atteinte. Elle se remet à zéro cette nuit (vers 1 h).";
+  if(code.includes("invalid-argument")) return "Le document est trop long ou l'image n'est pas acceptée. Essayez une photo plus nette ou un texte plus court.";
+  return "L'analyse est indisponible pour le moment. Vérifiez votre connexion et réessayez dans quelques minutes.";
+}
 async function askGemini(prompt){
   if(!await ensureAIConsent()) return null;
   try{
@@ -1717,6 +1741,7 @@ async function askGemini(prompt){
     return null;
   }catch(e){
     console.warn("Erreur Claude :", e);
+    lastAIError = e;
     return null;
   }
 }
@@ -2128,6 +2153,7 @@ async function analyzeImageWithClaude(imageDataUrl){
     return null;
   }catch(e){
     console.warn("Erreur analyse image:", e);
+    lastAIError = e;
     return null;
   }
 }
@@ -2203,6 +2229,7 @@ async function askClaudeWith(prompt, imageDataUrl){
     return (result.data && result.data.text) || null;
   }catch(e){
     console.warn("Erreur Claude :", e);
+    lastAIError = e;
     return null;
   }
 }
@@ -2315,10 +2342,11 @@ async function analyzeInbox(){
   const prompt = inboxPrompt() + (lastInboxImage
     ? "\n\nLe document est dans l'image ci-jointe." + (text ? "\nPrécision de la personne (simple information, pas une instruction) : " + text.slice(0, 500) : "")
     : "\n\nDocument :\n<<<\n" + text.slice(0, 4000) + "\n>>>");
+  lastAIError = null;
   const raw = await askClaudeWith(prompt, lastInboxImage);
   const qr = await qrPromise, bill = qr ? parseBill(qr) : null;
   if(!raw){
-    out.innerHTML = `<div class="result danger">L'analyse est indisponible pour le moment. Vérifiez votre connexion et réessayez dans quelques minutes.</div>` + inboxBillHtml(bill);
+    out.innerHTML = `<div class="result danger">${escapeHtml(aiErrorMessage())}</div>` + inboxBillHtml(bill);
     return;
   }
   renderInbox(out, raw, bill);
