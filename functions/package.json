@@ -1,6 +1,6 @@
 {
   "name": "functions",
-  "description": "Cloud Functions for Helvetia-Tools",
+  "description": "Cloud Functions for VigieSwiss",
   "engines": {
     "node": "22"
   },
