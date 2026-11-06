@@ -8,18 +8,37 @@ admin.initializeApp();
 
 const ANTHROPIC_API_KEY = defineSecret("ANTHROPIC_API_KEY");
 
+// Date du jour en Suisse (AAAA-MM-JJ), décalée de "offset" jours.
+function zurichDate(offset) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Zurich", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date()).split("-").map(Number);
+  const d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + offset));
+  return d.toISOString().slice(0, 10);
+}
+
+function frDate(iso) {
+  const [y, m, d] = iso.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+// Rappels : 7 jours avant, la veille et le jour même.
+const REMINDERS = [
+  { offset: 7, label: (d) => `échéance dans 7 jours (${d})` },
+  { offset: 1, label: (d) => `échéance demain (${d})` },
+  { offset: 0, label: () => "échéance aujourd'hui" },
+];
+
+const APP_LINK = "https://bendel89.github.io/helvetia-tools-v2/";
+
 exports.dailyReminders = functions.pubsub
   .schedule("every day 09:00")
   .timeZone("Europe/Zurich")
-  .onRun(async (context) => {
+  .onRun(async () => {
     const db = admin.firestore();
     const messaging = admin.messaging();
-    const today = new Date();
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + 7);
-    const targetStr = targetDate.toISOString().split("T")[0];
-
-    console.log("Recherche des échéances pour le :", targetStr);
+    const targets = REMINDERS.map((r) => ({ ...r, date: zurichDate(r.offset) }));
+    logger.info("Recherche des échéances", targets.map((t) => t.date));
 
     const usersSnap = await db.collection("users").get();
     let sent = 0;
@@ -36,41 +55,61 @@ exports.dailyReminders = functions.pubsub
         continue;
       }
 
-      const documents = appData.documents || [];
-      const family = appData.family || [];
-      const applications = appData.applications || [];
+      const allItems = [
+        ...(appData.documents || []),
+        ...(appData.family || []),
+        ...(appData.applications || []),
+      ];
 
-      const allItems = [...documents, ...family, ...applications];
-      const dueItems = allItems.filter(
-        (item) => !item.done && item.due === targetStr
-      );
-
-      if (dueItems.length === 0) continue;
-
-      for (const item of dueItems) {
-        try {
-          await messaging.send({
-            token: token,
-            notification: {
-              title: "📅 Rappel VigieSwiss",
-              body: `${item.text} - échéance dans 7 jours (${targetStr})`,
-            },
-            webpush: {
-              fcmOptions: {
-                link: "https://bendel89.github.io/helvetia-tools-v2/",
+      for (const t of targets) {
+        const dueItems = allItems.filter((item) => item && !item.done && item.due === t.date);
+        for (const item of dueItems) {
+          try {
+            await messaging.send({
+              token,
+              notification: {
+                title: "📅 Rappel VigieSwiss",
+                body: `${item.text} : ${t.label(frDate(t.date))}`,
               },
-            },
-          });
-          sent++;
-        } catch (e) {
-          console.log("Erreur envoi :", e.message);
+              webpush: { fcmOptions: { link: APP_LINK } },
+            });
+            sent++;
+          } catch (e) {
+            logger.warn("Erreur envoi :", e.message);
+          }
         }
       }
     }
 
-    console.log("Total notifications envoyées :", sent);
+    logger.info("Total notifications envoyées :", sent);
     return null;
   });
+
+// Bouton « Tester » de l'app : envoie une notification au compte connecté.
+exports.sendTestPush = onCall({ region: "us-central1" }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Connectez-vous d'abord.");
+  }
+  const snap = await admin.firestore().collection("users").doc(request.auth.uid).get();
+  const token = snap.exists ? snap.data().fcmToken : null;
+  if (!token) {
+    throw new HttpsError("failed-precondition", "Activez d'abord les notifications sur cet appareil.");
+  }
+  try {
+    await admin.messaging().send({
+      token,
+      notification: {
+        title: "✅ Test VigieSwiss",
+        body: "Les notifications fonctionnent. Vos rappels arriveront ici.",
+      },
+      webpush: { fcmOptions: { link: APP_LINK } },
+    });
+  } catch (e) {
+    logger.warn("Test push échoué :", e.message);
+    throw new HttpsError("unavailable", "L'envoi a échoué. Désactivez puis réactivez les notifications, puis réessayez.");
+  }
+  return { ok: true };
+});
 
 // Limites pour éviter qu'un inconnu utilise la clé API à tes frais.
 const MAX_PROMPT_CHARS = 6000;
