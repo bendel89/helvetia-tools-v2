@@ -1729,7 +1729,8 @@ function aiErrorMessage(){
   const code = String((lastAIError && lastAIError.code) || "");
   if(code.includes("resource-exhausted")) return "Limite de 30 analyses IA par jour atteinte. Elle se remet à zéro cette nuit (vers 1 h).";
   if(code.includes("invalid-argument")) return "Le document est trop long ou l'image n'est pas acceptée. Essayez une photo plus nette ou un texte plus court.";
-  return "L'analyse est indisponible pour le moment. Vérifiez votre connexion et réessayez dans quelques minutes.";
+  const detail = lastAIError ? " (code : " + (code || "aucun") + (lastAIError.message ? " — " + String(lastAIError.message).slice(0, 120) : "") + ")" : "";
+  return "L'analyse est indisponible pour le moment. Vérifiez votre connexion et réessayez dans quelques minutes." + detail;
 }
 async function askGemini(prompt){
   if(!await ensureAIConsent()) return null;
