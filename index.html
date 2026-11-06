@@ -218,7 +218,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
     <button type="button" class="mic-btn" onclick="startDictation('scamText', this)">🎤 Dicter</button>
     <div class="btn-row">
       <button type="button" class="btn primary" onclick="analyzeScamText()">🛡️ Analyser</button>
-      <button type="button" class="btn" onclick="extractOCR()">🔤 Lire texte / QR</button>
+      <button type="button" class="btn" onclick="extractOCR()">📷 Analyser la photo / QR</button>
       <button type="button" class="btn danger" onclick="clearScam()">🗑️ Effacer</button>
     </div>
     <div id="scamResult" aria-live="polite"></div>
@@ -2031,7 +2031,8 @@ function clearScam(){
 function analyzeScamText(){
   const text = $("scamText").value.trim();
   const result = $("scamResult");
-  if(!text){ result.innerHTML = `<div class="result warning">Ajoutez un texte à analyser.</div>`; return; }
+  if(!text && lastScamImage){ extractOCR(); return; }
+  if(!text){ result.innerHTML = `<div class="result warning">Collez un texte ou ajoutez une photo à analyser.</div>`; return; }
   const lower = normalizeText(text);
   let score = 0; const reasons = [];
   const words = ["urgent","urgence","cliquez","mot de passe","password","paiement","remboursement","amende","cadeau","gagne","bitcoin","crypto","virement","iban","colis","suspendu","bloque"];
