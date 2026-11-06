@@ -12,25 +12,25 @@
   "lang": "fr-CH",
   "icons": [
     {
-      "src": "vigieswiss-192.png",
+      "src": "vigieswiss-oeil-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "vigieswiss-192.png",
+      "src": "vigieswiss-oeil-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "vigieswiss-512.png",
+      "src": "vigieswiss-oeil-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "vigieswiss-512.png",
+      "src": "vigieswiss-oeil-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

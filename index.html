@@ -12,7 +12,7 @@
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = "8F9D6717-0C8C-46DF-BCB6-FC987A5F6A8F";
 </script>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-oeil.png">
 <meta name="apple-mobile-web-app-title" content="VigieSwiss">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -886,7 +886,7 @@ async function initFCM(){
       const title = (payload.notification && payload.notification.title) || "VigieSwiss";
       const body = (payload.notification && payload.notification.body) || "";
       if(typeof Notification !== "undefined" && Notification.permission === "granted"){
-        new Notification(title, {body, icon: "/helvetia-tools-v2/vigieswiss-192.png"});
+        new Notification(title, {body, icon: "/helvetia-tools-v2/vigieswiss-oeil-192.png"});
       }
     });
 
