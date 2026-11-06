@@ -734,7 +734,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
 <nav class="bottom-nav">
   <button type="button" id="nav-home" onclick="goHome()"><span>🏠</span>Accueil</button>
   <button type="button" id="nav-assistant" onclick="openPanel('assistant')"><span>🤖</span>Assistant</button>
-  <button type="button" id="nav-scam" onclick="openPanel('scam')"><span>🛡️</span>Scam</button>
+  <button type="button" id="nav-scam" onclick="openPanel('scam')"><span>🛡️</span>Arnaque</button>
   <button type="button" id="nav-housing" onclick="openPanel('housing')"><span>🏘️</span>Logement</button>
   <button type="button" id="nav-favorites" onclick="openPanel('favorites')"><span>⭐</span>Favoris</button>
 </nav>
@@ -829,7 +829,7 @@ const OLD_KEYS = ["swissLifeAI_v8", "swissLifeAI_v7"];
 const MODULES = {
   assistant:["🤖","Assistant","Trouvez rapidement le bon outil."],
   documents:["📄","Documents","Suivez vos documents et démarches."],
-  scam:["🛡️","Scam Shield","Analysez SMS, e-mails, photos, QR et PDF."],
+  scam:["🛡️","Anti-arnaque","Analysez SMS, e-mails, photos, QR et PDF."],
   phone:["📞","Numéro suisse","Vérifiez et recherchez un numéro."],
   company:["🏢","Entreprise suisse","Recherche Google, Zefix et local.ch."],
   money:["💰","Argent & finances","Budget, factures, abonnements et aides."],
@@ -2172,7 +2172,7 @@ const INBOX_TYPES = {
   impots:{icon:"🏛️",label:"Impôts",panel:"money",tool:"💰 Estimation d'impôts"},
   assurance:{icon:"🏥",label:"Assurance",panel:"health",tool:"🏥 Assurance maladie"},
   loyer:{icon:"🏠",label:"Logement / loyer",panel:"rent",tool:"⚖️ Contrôleur de loyer"},
-  arnaque:{icon:"🛡️",label:"Message suspect",panel:"scam",tool:"🛡️ Scam Shield"},
+  arnaque:{icon:"🛡️",label:"Message suspect",panel:"scam",tool:"🛡️ Anti-arnaque"},
   administration:{icon:"🇨🇭",label:"Courrier officiel",panel:"admin",tool:"🇨🇭 Services suisses"},
   travail:{icon:"💼",label:"Travail / salaire",panel:"money",tool:"💰 Argent & finances"},
   autre:{icon:"📄",label:"Document",panel:"documents",tool:"📄 Mes documents"}
