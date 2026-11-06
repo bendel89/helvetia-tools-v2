@@ -300,7 +300,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
   </div>
   <div class="section">
     <div class="section-title">🏛️ Estimation d'impôts (simplifiée)</div>
-    <p class="small" style="margin-bottom:8px">Estimation approximative basée sur les barèmes 2024.</p>
+    <p class="small" style="margin-bottom:8px">Ordre de grandeur seulement : barème simplifié, non officiel, qui ne tient pas compte de la commune. Pour un calcul exact, utilisez le simulateur officiel de l'Administration fédérale des contributions.</p>
     <div class="form-grid">
       <div class="field"><label for="taxCanton">Canton</label>
         <select id="taxCanton"><option value="VD">Vaud (VD)</option><option value="GE">Genève (GE)</option><option value="VS">Valais (VS)</option><option value="FR">Fribourg (FR)</option><option value="NE">Neuchâtel (NE)</option><option value="JU">Jura (JU)</option><option value="BE">Berne (BE)</option><option value="ZH">Zurich (ZH)</option><option value="TI">Tessin (TI)</option></select></div>
@@ -438,10 +438,10 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
   </div>
   <div class="section">
     <div class="section-title">💰 Comparateur de primes LAMal (estimation)</div>
-    <p class="small" style="margin-bottom:8px">Estimation basée sur des moyennes 2025.</p>
+    <p class="small" style="margin-bottom:8px">Fourchette indicative basée sur les primes moyennes adultes 2027 de l'OFSP. Le prix exact de chaque caisse est sur priminfo.admin.ch.</p>
     <div class="form-grid">
       <div class="field"><label for="pAge">Âge</label>
-        <select id="pAge"><option value="young">18-25 ans</option><option value="adult" selected>26-50 ans</option><option value="senior">51-65 ans</option></select></div>
+        <select id="pAge"><option value="young">19-25 ans</option><option value="adult" selected>26 ans et plus</option></select></div>
       <div class="field"><label for="pCanton">Canton</label>
         <select id="pCanton"><option value="VD">Vaud</option><option value="GE">Genève</option><option value="VS">Valais</option><option value="FR">Fribourg</option><option value="NE">Neuchâtel</option><option value="JU">Jura</option><option value="BE">Berne</option><option value="ZH">Zurich</option><option value="TI">Tessin</option></select></div>
       <div class="field"><label for="pModel">Modèle</label>
@@ -469,7 +469,7 @@ input[type=date]{min-width:0;max-width:100%;display:block;-webkit-appearance:non
 
 <section id="panel-rent" class="panel"><div class="panel-body">
   <div class="section">
-    <div class="result info" style="margin:0"><strong>📉 Taux de référence : 1,25 %</strong><br>En vigueur depuis le 2 septembre 2025.</div>
+    <div class="result info" style="margin:0"><strong>📉 Taux de référence : 1,25 %</strong><br>En vigueur depuis le 2 septembre 2025, confirmé par l'OFL le 1er septembre 2026.</div>
   </div>
   <div class="section">
     <div class="section-title">🧮 Ma baisse possible</div>
@@ -763,7 +763,7 @@ const link = (icon,label,sub,url) => ({icon,label,sub,module:"admin",direct:true
 const ACTIONS = {
   phoneLocal:{icon:"📞",label:"local.ch",sub:"Annuaire commercial",module:"phone",run:()=>phoneSearch("local")},
   phoneSearch:{icon:"🔎",label:"search.ch",sub:"Annuaire inversé suisse",module:"phone",run:()=>phoneSearch("searchch")},
-  phoneGoogle:{icon:"🛡️",label:"NCSC — Signalement",sub:"Centre national cybersécurité suisse",module:"phone",run:()=>openExternal("https://www.ncsc.admin.ch/ncsc/fr/home.html")},
+  phoneGoogle:{icon:"🛡️",label:"OFCS — Signalement",sub:"Office fédéral de la cybersécurité",module:"phone",run:()=>openExternal("https://www.report.ncsc.admin.ch/fr/")},
   phoneReports:{icon:"🚩",label:"Antiphishing.ch",sub:"Signaler un SMS ou e-mail suspect",module:"phone",run:()=>openExternal("https://antiphishing.ch/fr/")},
   coLocal:{icon:"📞",label:"local.ch",sub:"Fiche et coordonnées",module:"company",run:()=>companySearch("local")},
   coGoogle:{icon:"🌐",label:"Google",sub:"Nom + Suisse",module:"company",run:()=>companySearch("google")},
@@ -780,7 +780,7 @@ const ACTIONS = {
   aVd:link("🏛️","Canton de Vaud","Portail officiel du canton","https://www.vd.ch/"),
   aZefix:link("🏢","Zefix","Registre central des entreprises","https://www.zefix.ch/fr/search/entity/welcome"),
   aPost:link("📮","La Poste","Services postaux suisses","https://www.post.ch/fr"),
-  aBsv:link("🛡️","Assurances sociales","Informations officielles","https://www.ofas.admin.ch/bsv/fr/home.html")
+  aBsv:link("🛡️","Assurances sociales","Informations officielles (OFAS)","https://www.bsv.admin.ch/fr")
 };
 
 let appData = loadData();
@@ -1364,7 +1364,8 @@ function calcTaxes(){
     Revenu imposable : <strong>${formatCHF(base)}</strong><br>
     Impôt annuel estimé : <strong>${formatCHF(tax)}</strong><br>
     Taux effectif : <strong>${eff} %</strong><br><br>
-    <span class="small">⚠️ Estimation indicative. Consultez l'administration fiscale.</span></div>`;
+    <span class="small">⚠️ Ordre de grandeur, barème simplifié non officiel.</span><br>
+    <button type="button" class="btn" style="margin-top:8px" onclick="openExternal('https://www.estv.admin.ch/fr/simulateur-fiscal-calculer-vos-impots')">🧮 Simulateur officiel (AFC)</button></div>`;
 }
 function clearTaxes(){
   ["taxIncome","taxDeductions"].forEach(id => { const el = $(id); if(el) el.value = ""; });
@@ -1380,10 +1381,12 @@ function calcPrimeRange(){
   const model = $("pModel").value;
   const franchise = +$("pFranchise").value;
   const out = $("pPrimeResult");
-  const baseByCanton = {VD:450, GE:520, VS:400, FR:410, NE:480, JU:450, BE:420, ZH:400, TI:440};
+  // Primes moyennes adultes 2027 (OFSP), toutes franchises et modèles confondus.
+  const avg2027 = {VD:543.50, GE:610.60, VS:460.73, FR:465.48, NE:558.80, JU:551.00, BE:494.42, ZH:477.08, TI:603.66};
+  const baseByCanton = Object.fromEntries(Object.entries(avg2027).map(([k,v]) => [k, v / 1.05]));
   let base = baseByCanton[canton] || 430;
-  if(age === "young") base *= 0.65;
-  if(age === "senior") base *= 1.25;
+  // La prime ne dépend plus de l'âge après 26 ans ; les 19-25 ans paient moins.
+  if(age === "young") base *= 0.75;
   const modelAdj = {standard:1, family:0.95, telmed:0.92, hmo:0.88};
   base *= modelAdj[model] || 1;
   const franchiseAdj = {300:1.15, 500:1.10, 1000:1.05, 1500:1.00, 2000:0.95, 2500:0.90};
@@ -1393,7 +1396,7 @@ function calcPrimeRange(){
   out.innerHTML = `<div class="result success"><strong>💰 Estimation prime mensuelle</strong><br><br>
     Canton : <strong>${escapeHtml(canton)}</strong><br>
     Fourchette : <strong>CHF ${Math.round(low)} – ${Math.round(high)} / mois</strong><br><br>
-    <span class="small">⚠️ Estimation. Comparez sur priminfo.admin.ch.</span></div>`;
+    <span class="small">⚠️ Fourchette indicative. Les primes exactes sont sur priminfo.admin.ch.</span></div>`;
 }
 function clearPrimeRange(){ $("pPrimeResult").innerHTML = ""; }
 
@@ -2293,8 +2296,11 @@ function validateNumber(){
     note = ok ? "IBAN valide." : "IBAN incorrect.";
   }
   if(type === "avs"){
-    ok = digits.length === 13 && digits.startsWith("756");
-    note = ok ? "N° AVS valide." : "Format 756.XXXX.XXXX.XX.";
+    if(digits.length === 13 && digits.startsWith("756")){
+      const sum = digits.slice(0,12).split("").reduce((a,d,i) => a + (+d) * (i % 2 ? 3 : 1), 0);
+      ok = (10 - sum % 10) % 10 === +digits[12];
+    }
+    note = ok ? "N° AVS valide." : "N° AVS invalide (format 756.XXXX.XXXX.XX et chiffre de contrôle).";
   }
   if(type === "uid"){
     if(digits.length === 9){
@@ -2357,7 +2363,7 @@ const LETTERS = {
   assurance:(f) => `Objet : Résiliation d'assurance\n\nMadame, Monsieur,\n\nPar la présente, je résilie mon contrat d'assurance pour la prochaine échéance possible. ${f.detail}\n\nMerci de me confirmer par écrit.`,
   amende:(f) => `Objet : Contestation d'amende\n\nMadame, Monsieur,\n\nJe conteste l'amende notifiée. ${f.detail}\n\nJe vous prie de réexaminer ma situation.`,
   lamal:(f) => `Objet : Résiliation LAMal\n\nMadame, Monsieur,\n\nJe résilie mon assurance obligatoire des soins pour le 31 décembre ${new Date(healthDeadline() + "T12:00:00").getFullYear()}. ${f.detail}\n\nMerci de confirmer la bonne réception.`,
-  loyer:(f) => `Objet : Demande de baisse de loyer\n\nMadame, Monsieur,\n\nLe taux de référence est actuellement de 1,25 %. ${f.detail}\n\nJe vous prie de me répondre dans un délai de 30 jours.`,
+  loyer:(f) => `Objet : Demande de baisse de loyer\n\nMadame, Monsieur,\n\nLe taux de référence est actuellement de 1,25 %. ${f.detail}\n\nJe vous demande d'appliquer cette baisse pour le prochain terme de résiliation de mon bail, et vous prie de me répondre dans un délai de 30 jours.`,
   delai:(f) => `Objet : Demande de délai de paiement\n\nMadame, Monsieur,\n\nJe vous demande un délai pour la facture concernée. ${f.detail}\n\nMerci de votre compréhension.`
 };
 
@@ -2410,9 +2416,10 @@ function calcNet(){
   const lpp = parseFloat($("lppPct").value) || 0, aanp = parseFloat($("aanpPct").value) || 0;
   const out = $("netResult");
   if(!Number.isFinite(g) || g <= 0){ out.innerHTML = `<div class="result warning">Saisissez un salaire brut.</div>`; return; }
-  const rows = [["AVS/AI/APG (5,3 %)",5.3],["Assurance chômage (1,1 %)",1.1],["LPP",lpp],["AANP",aanp]];
-  const total = rows.reduce((a,x) => a + g * x[1] / 100, 0);
-  out.innerHTML = `<div class="result info"><strong>Net estimé : ${formatCHF(g - total)}</strong>/mois<br>${rows.map(x => `<div class="row">− ${formatCHF(g * x[1] / 100)} : ${escapeHtml(x[0])}</div>`).join("")}</div>`;
+  const acBase = Math.min(g, 148200 / 12);
+  const rows = [["AVS/AI/APG (5,3 %)", g * 0.053],["Assurance chômage (1,1 %, jusqu'à 148 200 CHF/an)", acBase * 0.011],["LPP", g * lpp / 100],["AANP", g * aanp / 100]];
+  const total = rows.reduce((a,x) => a + x[1], 0);
+  out.innerHTML = `<div class="result info"><strong>Net estimé : ${formatCHF(g - total)}</strong>/mois<br>${rows.map(x => `<div class="row">− ${formatCHF(x[1])} : ${escapeHtml(x[0])}</div>`).join("")}</div>`;
 }
 
 function clearNet(){ $("gross").value = ""; $("lppPct").value = "5"; $("aanpPct").value = "1"; $("netResult").innerHTML = ""; }
@@ -2421,7 +2428,7 @@ function clearNet(){ $("gross").value = ""; $("lppPct").value = "5"; $("aanpPct"
    Parcours de vie
    ============================================================ */
 const LIFE = {
-  move:["🚚 Déménagement",[["Informer La Poste",-7],["Informer assurance et employeur",-7],["État des lieux de sortie",0],["Annoncer à la commune (14j)",14],["Récupérer la caution",30]]],
+  move:["🚚 Déménagement",[["Informer La Poste",-7],["Informer assurance et employeur",-7],["État des lieux de sortie",0],["Annoncer à la commune (8 jours dans le canton de Vaud, selon la commune ailleurs)",8],["Récupérer la caution",30]]],
   birth:["👶 Naissance",[["Informer l'employeur",-60],["État civil",3],["Assurance maladie",30],["Allocations familiales",30],["Assurances",90]]],
   job:["💼 Nouveau travail",[["Signer contrat",-14],["Données bancaires/AVS",-7],["Transférer LPP",30],["Assurance accident",7]]],
   unemp:["📉 Perte d'emploi",[["S'inscrire à l'ORP",0],["Demander indemnités",7],["Rassembler documents",3],["Adapter budget",7]]]
@@ -2461,7 +2468,7 @@ function clearLife(){ $("lifeType").selectedIndex = 0; $("lifeDate").value = "";
 /* ============================================================
    Calendrier
    ============================================================ */
-const SWISS_DATES = [["🏥 Résiliation maladie : dernier jour ouvrable de novembre",11,30],["💼 3e pilier A : dernier versement",12,31],["🧾 Déclaration d'impôts (selon canton)",3,31]];
+const SWISS_DATES = [["🏥 Résiliation maladie : dernier jour ouvrable de novembre",11,30],["💼 3e pilier A : dernier versement",12,31],["🧾 Déclaration d'impôts (15 mars dans le canton de Vaud, date selon le canton ailleurs)",3,15]];
 
 function nextDate(m, d){
   const t = todayStr(), y = new Date().getFullYear();
