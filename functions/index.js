@@ -72,12 +72,62 @@ exports.dailyReminders = functions.pubsub
     return null;
   });
 
+// Limites pour éviter qu'un inconnu utilise la clé API à tes frais.
+const MAX_PROMPT_CHARS = 6000;
+const MAX_IMAGE_BASE64_CHARS = 7000000; // environ 5 Mo d'image
+const DAILY_LIMIT_PER_USER = 30;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+async function checkDailyQuota(key) {
+  const db = admin.firestore();
+  const day = new Date().toISOString().slice(0, 10);
+  const ref = db.collection("aiUsage").doc(`${key}_${day}`);
+  await db.runTransaction(async (t) => {
+    const snap = await t.get(ref);
+    const count = (snap.exists ? snap.data().count : 0) + 1;
+    if (count > DAILY_LIMIT_PER_USER) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Limite quotidienne d'analyses atteinte. Réessaie demain."
+      );
+    }
+    t.set(ref, { count, day }, { merge: true });
+  });
+}
+
 exports.askClaude = onCall(
   { secrets: [ANTHROPIC_API_KEY], region: "us-central1" },
   async (request) => {
-    const prompt = request.data && request.data.prompt;
-    if (!prompt) {
+    const data = request.data || {};
+    const prompt = data.prompt;
+    if (!prompt || typeof prompt !== "string") {
       throw new HttpsError("invalid-argument", "Prompt manquant.");
+    }
+    if (prompt.length > MAX_PROMPT_CHARS) {
+      throw new HttpsError("invalid-argument", "Texte trop long.");
+    }
+
+    // Quota par compte connecté, sinon par adresse IP.
+    const caller =
+      (request.auth && request.auth.uid) ||
+      (request.rawRequest && request.rawRequest.ip) ||
+      "inconnu";
+    await checkDailyQuota(String(caller).replace(/[^a-zA-Z0-9_.:-]/g, "_"));
+
+    // L'image était envoyée par l'app mais jamais transmise à Claude.
+    let content = prompt;
+    if (data.image) {
+      const type = data.imageMimeType;
+      if (!ALLOWED_IMAGE_TYPES.includes(type)) {
+        throw new HttpsError("invalid-argument", "Format d'image non pris en charge.");
+      }
+      if (typeof data.image !== "string" || data.image.length > MAX_IMAGE_BASE64_CHARS) {
+        throw new HttpsError("invalid-argument", "Image trop lourde.");
+      }
+      content = [
+        { type: "image", source: { type: "base64", media_type: type, data: data.image } },
+        { type: "text", text: prompt },
+      ];
     }
 
     const apiKey = ANTHROPIC_API_KEY.value();
@@ -92,17 +142,19 @@ exports.askClaude = onCall(
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }],
+        messages: [{ role: "user", content }],
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
       logger.error("Erreur Claude", response.status, errText);
-      throw new HttpsError("internal", `Claude ${response.status}: ${errText}`);
+      // Le détail reste dans les logs, pas chez l'utilisateur.
+      throw new HttpsError("internal", "L'analyse est indisponible pour le moment.");
     }
 
-    const data = await response.json();
-    return { text: data.content[0].text };
+    const result = await response.json();
+    const textBlock = (result.content || []).find((b) => b.type === "text");
+    return { text: textBlock ? textBlock.text : "" };
   }
 );
